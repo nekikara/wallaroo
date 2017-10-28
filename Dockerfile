@@ -34,46 +34,53 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "D401AB61 
     apt-get -y autoremove --purge && \
     apt-get -y clean
 
-COPY book /wallaroo/book/
-COPY book.json /wallaroo/
-COPY CHANGELOG.md /wallaroo/
-COPY CODE_OF_CONDUCT.md /wallaroo/
-COPY CONTRIBUTING.md /wallaroo/
-COPY cover.jpg /wallaroo/
-COPY cpp_api /wallaroo/cpp_api/
-COPY Dockerfile /wallaroo/
-COPY examples /wallaroo/examples/
-COPY giles /wallaroo/giles/
-COPY intro.md /wallaroo/
-COPY lib /wallaroo/lib/
-COPY LICENSE.md /wallaroo/
-COPY LIMITATIONS.md /wallaroo/
-COPY machida /wallaroo/machida/
-COPY Makefile /wallaroo/
-COPY monitoring_hub /wallaroo/monitoring_hub/
-COPY orchestration /wallaroo/orchesration/
-COPY README.md /wallaroo/
-COPY ROADMAP.md /wallaroo/
-COPY rules.mk /wallaroo/
-COPY SUMMARY.md /wallaroo/
-COPY SUPPORT.md /wallaroo/
-COPY utils /wallaroo/utils/
+RUN mkdir /src
 
-WORKDIR /wallaroo
+COPY book /wallaroo-src/book/
+COPY book.json /wallaroo-src/
+COPY CHANGELOG.md /wallaroo-src/
+COPY CODE_OF_CONDUCT.md /wallaroo-src/
+COPY CONTRIBUTING.md /wallaroo-src/
+COPY cover.jpg /wallaroo-src/
+COPY cpp_api /wallaroo-src/cpp_api/
+COPY Dockerfile /wallaroo-src/
+COPY examples /wallaroo-src/examples/
+COPY giles /wallaroo-src/giles/
+COPY intro.md /wallaroo-src/
+COPY lib /wallaroo-src/lib/
+COPY LICENSE.md /wallaroo-src/
+COPY LIMITATIONS.md /wallaroo-src/
+COPY machida /wallaroo-src/machida/
+COPY Makefile /wallaroo-src/
+COPY monitoring_hub /wallaroo-src/monitoring_hub/
+COPY orchestration /wallaroo-src/orchesration/
+COPY README.md /wallaroo-src/
+COPY ROADMAP.md /wallaroo-src/
+COPY rules.mk /wallaroo-src/
+COPY SUMMARY.md /wallaroo-src/
+COPY SUPPORT.md /wallaroo-src/
+COPY utils /wallaroo-src/utils/
+COPY docker-setup.sh /wallaroo-src/
+
+WORKDIR /wallaroo-src
+
 RUN make clean && \
-    make build-giles-all && \
-    make build-utils-all && \
-    make build-machida-all && \
+    make target_cpu=x86-64 build-giles-all && \
+    make target_cpu=x86-64 build-utils-all && \
+    make target_cpu=x86-64 build-machida-all && \
     mkdir /wallaroo-bin && \
     cp giles/sender/sender /wallaroo-bin/sender && \
     cp giles/receiver/receiver /wallaroo-bin/receiver && \
     cp machida/build/machida /wallaroo-bin/machida && \
     cp utils/cluster_shutdown/cluster_shutdown /wallaroo-bin/cluster_shutdown && \
+    cp docker-setup.sh /wallaroo-bin && \
     make clean
 
+VOLUME /src/wallaroo
 
 ENV PATH /wallaroo-bin:$PATH
-ENV PYTHONPATH /wallaroo/machida:$PYTHONPATH
+ENV PYTHONPATH /src/wallaroo/machida:$PYTHONPATH
 
-ENTRYPOINT ["bash"]
+WORKDIR /src
 
+ENTRYPOINT ["docker-setup.sh"]
