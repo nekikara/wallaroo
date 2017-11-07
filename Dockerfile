@@ -30,7 +30,7 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys "D401AB61 
     pip install virtualenv virtualenvwrapper && \
     pip install --upgrade pip && \
 # cleanup
-    rm -rf /var/lib/apt/lists/* && \     
+    rm -rf /var/lib/apt/lists/* && \
     apt-get -y autoremove --purge && \
     apt-get -y clean
 
@@ -62,6 +62,9 @@ COPY SUPPORT.md /wallaroo-src/
 COPY utils /wallaroo-src/utils/
 COPY docker-setup.sh /wallaroo-src/
 
+RUN mkdir /metrics_ui-src && \
+    cp -r /wallaroo-src/monitoring_hub/apps/metrics_reporter_ui/rel/metrics_reporter_ui /metrics_ui-src
+
 WORKDIR /wallaroo-src
 
 RUN make clean && \
@@ -76,9 +79,10 @@ RUN make clean && \
     cp docker-setup.sh /wallaroo-bin && \
     make clean
 
+
 VOLUME /src/wallaroo
 
-ENV PATH /wallaroo-bin:$PATH
+ENV PATH /wallaroo-bin:/metrics_ui-src/metrics_reporter_ui/bin:$PATH
 ENV PYTHONPATH /src/wallaroo/machida:$PYTHONPATH
 
 WORKDIR /src
