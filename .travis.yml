@@ -124,14 +124,15 @@ install:
   - echo "Installing enum";
     sudo python2 -m pip install --upgrade pip enum34
 script:
-  - make test debug=true
+  # - make test debug=true
   # Make sure to run `make clean` between separate test runs to clear any conflicting dependencies
   - make clean
   # Run the correctness tests that require a resilience build
-  - make integration-tests-testing-correctness-tests-all resilience=on debug=true
+  # - make integration-tests-testing-correctness-tests-all resilience=on debug=true
   # Build Docker images
-  - if [[ "${TRAVIS_BRANCH}" = "docker-travis-test" ]] && [[ "${TRAVIS_OS_NAME}" = "linux" ]];
+  - if [ "${TRAVIS_OS_NAME}" = "linux" ];
     then
-      make arch=amd64 release-monhub-all
+      make release-monhub-all
       docker build -t wallaroo .
+      docker images
     fi;
