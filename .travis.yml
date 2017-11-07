@@ -132,7 +132,7 @@ script:
   # Build Docker images
   - if [ "${TRAVIS_OS_NAME}" = "linux" ];
     then
-      make release-monhub-all
-      docker build -t wallaroo .
-      docker images
+      make release-monhub-all;
+      docker build -t wallaroo .;
+      docker images;
     fi;
