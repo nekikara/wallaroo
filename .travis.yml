@@ -14,9 +14,12 @@ branches:
     - release
     - /^release-(\d).(\d).(\d)-rc(\d)+$/
     - /^release-(\d).(\d).(\d)$/
+    - docker-travis-test
 
 dist: trusty
 sudo: required
+
+services: docker
 
 matrix:
   include:
@@ -126,3 +129,9 @@ script:
   - make clean
   # Run the correctness tests that require a resilience build
   - make integration-tests-testing-correctness-tests-all resilience=on debug=true
+  # Build Docker images
+  - if [[ "${TRAVIS_BRANCH}" = "docker-travis-test" ]] && [[ "${TRAVIS_OS_NAME}" = "linux" ]];
+    then
+      make arch=amd64 release-monhub-all
+      docker build -t wallaroo .
+    fi;
